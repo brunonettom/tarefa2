@@ -835,48 +835,377 @@ class AGLExperiment:
         for button in self.buttons.values():
             button.update(mouse_pos)
 
-# Main game function
-def main():
-    # Initialize experiment with configuration mode
-    experiment = AGLExperiment()  # No config passed, will start in config mode
-    clock = pygame.time.Clock()
-    
-    # Main game loop
-    running = True
-    while running:
-        # Process only global events here
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    pygame.quit()
-                    sys.exit()
-                elif event.key == pygame.K_F11:
-                    toggle_fullscreen()
-                    # Reconfigure UI elements after resize
-                    if experiment.state == "config":
-                        experiment.config.create_ui_elements()
-                    else:
-                        experiment.create_buttons()
-                        
-            if event.type == pygame.VIDEORESIZE:
-                if not is_fullscreen:
-                    global SCREEN_WIDTH, SCREEN_HEIGHT
-                    SCREEN_WIDTH, SCREEN_HEIGHT = event.size
-                    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE)
-                    # Reconfigure UI elements after resize
-                    if experiment.state == "config":
-                        experiment.config.create_ui_elements()
-                    else:
-                        experiment.create_buttons()
+    def draw(self):
+        """Draw the current state of the experiment"""
+        screen.fill(WHITE)
         
-        # Let the experiment handle its own events (separate from global events)
-        experiment.handle_events()
-        experiment.draw()
-        clock.tick(60)
+        if self.state == "config":
+            # Draw configuration screen
+            self.config.draw(screen)
+        
+        elif self.state == "instructions":
+            self.draw_instructions()
+            self.buttons["start"].draw(screen)
+        
+        elif self.state == "training":
+            self.draw_training()
+            self.buttons["next"].draw(screen)
+        
+        elif self.state == "test_instructions":
+            self.draw_test_instructions()
+            self.buttons["start"].draw(screen)
+        
+        elif self.state == "testing":
+            self.draw_testing()
+            self.buttons["grammatical"].draw(screen)
+            self.buttons["non_grammatical"].draw(screen)
+        
+        elif self.state == "confidence":
+            self.draw_confidence()
+            for i in range(1, 6):
+                self.buttons[f"conf_{i}"].draw(screen)
+        
+        elif self.state == "results":
+            self.draw_results()
+            self.buttons["finish"].draw(screen)
+        
+        # Draw fullscreen help in all screens
+        if self.state != "config":  # Already drawn in config screen
+            help_text = FONT_TINY.render("F11: Alternar tela cheia", True, GRAY)
+            screen.blit(help_text, (SCREEN_WIDTH - help_text.get_width() - 10, 10))
+            
+        pygame.display.flip()
+    
+    def draw_instructions(self):
+        """Draw instructions screen"""
+        # Draw title
+        title = FONT_LARGE.render("Aprendizagem de Gramática Artificial", True, BLACK)
+        screen.blit(title, (SCREEN_WIDTH//2 - title.get_width()//2, 50))
+        
+        # Calculate safe area for instructions text to avoid button overlap
+        bottom_limit = self.buttons["start"].rect.top - 60  # Space above button
+        
+        # Draw instructions - adjust for screen size
+        instructions = [
+            "Neste experimento, você verá sequências de letras.",
+            "As sequências são geradas seguindo regras específicas, formando uma 'gramática artificial'.",
+            "Sua tarefa será memorizar estas sequências na fase de treino.",
+            "Depois, você julgará novas sequências como 'gramaticais' (seguem as regras) ou",
+            "'não gramaticais' (violam as regras), e indicará seu nível de confiança.",
+            "",
+            "Nenhuma instrução sobre as regras será dada.",
+            "Tente identificar os padrões ocultos nas sequências durante o treinamento!"
+        ]
+        
+        # Adjust font size and line spacing based on available space
+        font_to_use = FONT_MEDIUM
+        line_spacing = 40
+        
+        # Calculate total height needed and available space
+        total_height = len(instructions) * line_spacing
+        available_height = bottom_limit - 150  # From y=150 to bottom_limit
+        
+        # If not enough space, use smaller font
+        if total_height > available_height:
+            font_to_use = FONT_SMALL
+            line_spacing = 30
+        
+        # If still not enough space, use tiny font
+        if len(instructions) * line_spacing > available_height:
+            font_to_use = FONT_TINY
+            line_spacing = 20
+    
+        # Start closer to top if needed
+        y_pos = 150
+        if y_pos + total_height > bottom_limit:
+            y_pos = max(100, bottom_limit - total_height)
+    
+        # Render text, ensuring it's centered
+        for line in instructions:
+            instr_text = font_to_use.render(line, True, BLACK)
+            text_x = SCREEN_WIDTH//2 - instr_text.get_width()//2
+            screen.blit(instr_text, (text_x, y_pos))
+            y_pos += line_spacing
+    
+        # Only draw the note if there's room, and center it
+        if y_pos + 30 < bottom_limit:
+            note = FONT_SMALL.render("Este experimento investiga como as pessoas adquirem conhecimento implícito.", True, GRAY)
+            screen.blit(note, (SCREEN_WIDTH//2 - note.get_width()//2, y_pos))
+    
+    def draw_training(self):
+        """Draw training screen"""
+        # Draw phase title
+        title = FONT_LARGE.render("Fase de Treinamento", True, BLUE)
+        screen.blit(title, (SCREEN_WIDTH//2 - title.get_width()//2, 50))
+        
+        # Draw instruction
+        instr = FONT_MEDIUM.render("Memorize esta sequência:", True, BLACK)
+        screen.blit(instr, (SCREEN_WIDTH//2 - instr.get_width()//2, 120))
+        
+        # Draw sequence - center it
+        sequence = self.training_sequences[self.current_sequence_idx]
+        seq_text = FONT_LARGE.render(sequence, True, BLACK)
+        screen.blit(seq_text, (SCREEN_WIDTH//2 - seq_text.get_width()//2, SCREEN_HEIGHT//2 - 30))
+        
+        # Draw progress - ensure it doesn't overlap with the sequence
+        progress = FONT_SMALL.render(f"Sequência {self.current_sequence_idx + 1} de {len(self.training_sequences)}", 
+                                    True, GRAY)
+        progress_y = min(SCREEN_HEIGHT//2 + 50, self.buttons["next"].rect.top - 60)
+        screen.blit(progress, (SCREEN_WIDTH//2 - progress.get_width()//2, progress_y))
+    
+    def draw_test_instructions(self):
+        """Draw test instructions screen"""
+        # Draw title
+        title = FONT_LARGE.render("Instruções para a Fase de Teste", True, BLUE)
+        screen.blit(title, (SCREEN_WIDTH//2 - title.get_width()//2, 50))
+        
+        # Calculate safe area for instructions text
+        bottom_limit = self.buttons["start"].rect.top - 60  # Space above button
+        
+        # Draw instructions - adjust for screen size
+        instructions = [
+            "Agora, você verá novas sequências de letras.",
+            "Para cada sequência, decida se ela segue as mesmas regras",
+            "das sequências que você viu na fase de treinamento.",
+            "",
+            "Responda se a sequência é 'gramatical' (segue as regras) ou",
+            "'não gramatical' (viola as regras).",
+            "",
+            "Em seguida, indique seu nível de confiança na decisão (1-5).",
+            "A escala de confiança é muito importante:",
+            "1 = Apenas adivinhando; 5 = Totalmente certo",
+            "",
+            "Por favor, use toda a escala de confiança e seja honesto(a)!",
+            "Pronto para começar?"
+        ]
+        
+        # Adjust font size and spacing based on available space
+        font_to_use = FONT_MEDIUM
+        line_spacing = 35
+        
+        # Calculate total needed height
+        total_height = len(instructions) * line_spacing
+        available_height = bottom_limit - 130  # From y=130 to bottom limit
+        
+        # If not enough space, switch to smaller font
+        if total_height > available_height:
+            font_to_use = FONT_SMALL
+            line_spacing = 25
+            
+        # If still not enough space, use tiny font and simplified instructions
+        if len(instructions) * line_spacing > available_height:
+            font_to_use = FONT_TINY
+            line_spacing = 20
+            instructions = [
+                "Você verá novas sequências de letras.",
+                "Decida se a sequência segue as regras do treinamento.",
+                "",
+                "Responda 'gramatical' ou 'não gramatical'.",
+                "Depois indique sua confiança (1-5).",
+                "1 = Adivinhando; 5 = Certeza",
+                "",
+                "Pronto para começar?"
+            ]
+        
+        y_pos = 130
+        for line in instructions:
+            instr_text = font_to_use.render(line, True, BLACK)
+            screen.blit(instr_text, (SCREEN_WIDTH//2 - instr_text.get_width()//2, y_pos))
+            y_pos += line_spacing
+    
+    def draw_testing(self):
+        """Draw testing screen"""
+        # Draw phase title
+        title = FONT_LARGE.render("Fase de Teste", True, BLUE)
+        screen.blit(title, (SCREEN_WIDTH//2 - title.get_width()//2, 50))
+        
+        # Draw instruction
+        instr = FONT_MEDIUM.render("Esta sequência é gramatical?", True, BLACK)
+        screen.blit(instr, (SCREEN_WIDTH//2 - instr.get_width()//2, 120))
+        
+        # Draw sequence - ensure it's visible and centered
+        sequence, _ = self.test_sequences[self.current_sequence_idx]
+        seq_text = FONT_LARGE.render(sequence, True, BLACK)
+        screen.blit(seq_text, (SCREEN_WIDTH//2 - seq_text.get_width()//2, SCREEN_HEIGHT//2 - 50))
+        
+        # Draw progress - position it to avoid overlapping with buttons
+        progress = FONT_SMALL.render(f"Sequência {self.current_sequence_idx + 1} de {len(self.test_sequences)}", 
+                                    True, GRAY)
+        # Position progress text where it won't overlap with buttons
+        safe_y = min(SCREEN_HEIGHT//2 + 30, self.buttons["grammatical"].rect.top - 80)
+        screen.blit(progress, (SCREEN_WIDTH//2 - progress.get_width()//2, safe_y))
+    
+    def draw_confidence(self):
+        """Draw confidence rating screen"""
+        # Draw instruction
+        title = FONT_LARGE.render("Nível de Confiança", True, BLUE)
+        screen.blit(title, (SCREEN_WIDTH//2 - title.get_width()//2, 50))
+        
+        # Draw question
+        instr = FONT_MEDIUM.render("Qual é o seu nível de confiança nesta resposta?", True, BLACK)
+        screen.blit(instr, (SCREEN_WIDTH//2 - instr.get_width()//2, 150))
+        
+        # Calculate safe position for scale labels
+        lowest_button_y = min(self.buttons[f"conf_{i}"].rect.top for i in range(1, 6))
+        low_conf_y = lowest_button_y - 80
+        
+        # Draw scale labels
+        low_conf = FONT_SMALL.render("1 = Baixa confiança (Adivinhando)", True, BLACK)
+        high_conf = FONT_SMALL.render("5 = Alta confiança (Certeza)", True, BLACK)
+        
+        # Center the explanation text
+        center_x = SCREEN_WIDTH // 2
+        screen.blit(low_conf, (center_x - low_conf.get_width() // 2, low_conf_y))
+        screen.blit(high_conf, (center_x - high_conf.get_width() // 2, low_conf_y + 30))
+    
+    def draw_results(self):
+        """Draw results screen"""
+        # Draw title
+        title = FONT_LARGE.render("Resultados do Experimento", True, BLUE)
+        screen.blit(title, (SCREEN_WIDTH//2 - title.get_width()//2, 50))
+        
+        # Adjust layout based on screen size
+        if SCREEN_WIDTH < 800 or SCREEN_HEIGHT < 600:
+            self.draw_results_single_column()
+        else:
+            self.draw_results_two_columns()
+            
+    def draw_results_single_column(self):
+        """Draw results in a single column for smaller screens"""
+        # For smaller screens, draw results in a single column
+        results_text = [
+            f"Acurácia: {self.results['accuracy']*100:.1f}%",
+            f"d': {self.results['dprime']:.2f}",
+            f"Critério (C): {self.results.get('criterion', 0):.2f}",
+            f"Hits: {self.results['hits']}/{self.results['hits'] + self.results['misses']}",
+            f"CR: {self.results['correct_rejections']}/{self.results['false_alarms'] + self.results['correct_rejections']}",
+            f"Taxa de Hits: {self.results.get('hit_rate', 0)*100:.1f}%",
+            f"Taxa de FA: {self.results.get('fa_rate', 0)*100:.1f}%",
+            f"Confiança: {self.results['mean_confidence']:.1f}/5",
+            f"Tempo: {self.results['mean_rt']:.2f}s"
+        ]  # Close the list here
+        
+        # Use smaller font and spacing for small screens
+        font_to_use = FONT_SMALL if SCREEN_HEIGHT >= 500 else FONT_TINY
+        line_spacing = 30 if SCREEN_HEIGHT >= 500 else 20
+        
+        y_pos = 120
+        for line in results_text:
+            result_line = font_to_use.render(line, True, BLACK)
+            screen.blit(result_line, (SCREEN_WIDTH//2 - result_line.get_width()//2, y_pos))
+            y_pos += line_spacing
+            
+        # Draw interpretation if there's space
+        if SCREEN_HEIGHT >= 500:
+            y_pos += 20
+            note_title = font_to_use.render("Aprendizado Implícito:", True, GREEN)
+            screen.blit(note_title, (SCREEN_WIDTH//2 - note_title.get_width()//2, y_pos))
+            
+            y_pos += line_spacing
+            if self.results.get('low_conf_correct', 0) > len(self.test_sequences) * 0.3:
+                note = font_to_use.render("Evidência de aprendizado implícito.", True, BLACK)
+            else:
+                note = font_to_use.render("Sem evidências fortes de aprendizado implícito.", True, BLACK)
+            screen.blit(note, (SCREEN_WIDTH//2 - note.get_width()//2, y_pos))
+        
+        # Draw message about saved results if there's space
+        if y_pos + 60 < self.buttons["finish"].rect.top:
+            message = FONT_TINY.render("Resultados completos salvos em CSV.", True, GRAY)
+            screen.blit(message, (SCREEN_WIDTH//2 - message.get_width()//2, y_pos + 40))
+            
+    def draw_results_two_columns(self):
+        """Draw results in two columns for larger screens"""
+        # For larger screens, draw results in two columns
+        # Draw results - column 1 (left side)
+        results_text_col1 = [
+            f"Acurácia: {self.results['accuracy']*100:.1f}%",
+            f"Índice de Sensibilidade (d'): {self.results['dprime']:.2f}",
+            f"Viés de Resposta (C): {self.results.get('criterion', 0):.2f}",
+            f"Hits: {self.results['hits']} de {self.results['hits'] + self.results['misses']}",
+            f"CR: {self.results['correct_rejections']} de {self.results['false_alarms'] + self.results['correct_rejections']}",
+            f"Confiança Média: {self.results['mean_confidence']:.1f} / 5"
+        ]
+        
+        # Column 2 (right side)
+        results_text_col2 = [
+            f"Taxa de Hits: {self.results.get('hit_rate', 0)*100:.1f}%",
+            f"Taxa de FA: {self.results.get('fa_rate', 0)*100:.1f}%",
+            f"Conf. em Hits: {self.results.get('hit_confidence', 0):.1f} / 5",
+            f"Conf. em CR: {self.results.get('cr_confidence', 0):.1f} / 5",
+            f"Acertos com Baixa Conf.: {self.results.get('low_conf_correct', 0)}",
+            f"Tempo de Reação Médio: {self.results['mean_rt']:.2f}s"
+        ]
+        
+        # Use a larger font size for better readability on big screens
+        font_to_use = FONT_MEDIUM
+        line_spacing = 35
+        
+        # Calculate column widths and x positions
+        col_width = SCREEN_WIDTH // 2 - 40
+        col1_x = 20
+        col2_x = SCREEN_WIDTH // 2 + 20
+        
+        # Draw column 1
+        y_pos = 120
+        for line in results_text_col1:
+            result_line = font_to_use.render(line, True, BLACK)
+            screen.blit(result_line, (col1_x + 10, y_pos))
+            y_pos += line_spacing
+        
+        # Draw column 2
+        y_pos = 120
+        for line in results_text_col2:
+            result_line = font_to_use.render(line, True, BLACK)
+            screen.blit(result_line, (col2_x + 10, y_pos))
+            y_pos += line_spacing
+        
+        # Draw overall accuracy in the middle of the two columns
+        overall_acc = FONT_LARGE.render(f"Acurácia Geral: {self.results['accuracy']*100:.1f}%", True, BLUE)
+        screen.blit(overall_acc, (SCREEN_WIDTH//2 - overall_acc.get_width()//2, 80))
+        
+        # Draw message about saved results at the bottom
+        message = FONT_TINY.render("Resultados completos salvos em CSV.", True, GRAY)
+        screen.blit(message, (SCREEN_WIDTH//2 - message.get_width()//2, SCREEN_HEIGHT - 30))
 
-if __name__ == "__main__":
-    main()
+    def save_results(self):
+        """Save the results to a CSV file"""
+        # Create results directory if it doesn't exist
+        os.makedirs("results", exist_ok=True)
+        
+        # Define CSV file path
+        file_path = os.path.join("results", "agl_experiment_results.csv")
+        
+        # Write results to CSV
+        with open(file_path, mode='w', newline='', encoding='utf-8') as file:
+            writer = csv.writer(file)
+            
+            # Write header
+            writer.writerow([
+                "Acurácia", "d'", "Critério (C)", "Hits", "Misses", "False Alarms",
+                "Correct Rejections", "Taxa de Hits", "Taxa de FA",
+                "Confiança Média", "Tempo de Reação Médio", "Acertos com Baixa Conf."
+            ])
+            
+            # Write data row
+            writer.writerow([
+                f"{self.results['accuracy']*100:.1f}%",
+                f"{self.results['dprime']:.2f}",
+                f"{self.results.get('criterion', 0):.2f}",
+                self.results['hits'],
+                self.results['misses'],
+                self.results['false_alarms'],
+                self.results['correct_rejections'],
+                f"{self.results.get('hit_rate', 0)*100:.1f}%",
+                f"{self.results.get('fa_rate', 0)*100:.1f}%",
+                f"{self.results['mean_confidence']:.1f} / 5",
+                f"{self.results['mean_rt']:.2f}s",
+                self.results.get('low_conf_correct', 0)
+            ])
+        
+        print(f"Results saved to {file_path}")
+
+# Run the experiment
+experiment = AGLExperiment()
+while True:
+    experiment.handle_events()
+    experiment.draw()

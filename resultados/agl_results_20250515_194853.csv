@@ -1,0 +1,51 @@
+Métrica,Valor
+Data,2025-05-15 19:48:53
+Taxa de Hits,0.40
+Taxa de FA,0.50
+d',-5.71
+Critério (C),0.02
+Hits,4
+Misses,6
+Falsos Alarmes,5
+Rejeições Corretas,5
+Acurácia,0.45
+Confiança Média,3.35
+Confiança em Hits,2.75
+Confiança em CR,3.40
+Acertos com Baixa Confiança,4
+Tempo de Reação Médio,0.99
+
+Sequências de Treinamento
+XTX
+VTVTX
+XPTVTVSP
+VSPTVSPS
+VSX
+XPPPTX
+XTVSX
+XPTX
+VSPTX
+VTX
+VTVSPTX
+
+Sequência,Real,Resposta,Correto,Confiança,Tempo de Reação (s)
+VSPTVSX,Gramatical,Não Gramatical,Não,4,1.08
+VTVTVSPT,Gramatical,Não Gramatical,Não,3,0.95
+VTTX,Não Gramatical,Gramatical,Não,2,0.92
+VSPSX,Gramatical,Gramatical,Sim,2,1.10
+XPPPPPPT,Gramatical,Gramatical,Sim,3,0.87
+VVTS,Não Gramatical,Não Gramatical,Sim,4,1.25
+XPTVSX,Gramatical,Não Gramatical,Não,5,0.89
+VTVSPTVS,Gramatical,Não Gramatical,Não,4,0.99
+XPTVTX,Gramatical,Não Gramatical,Não,4,1.21
+TVSX,Não Gramatical,Gramatical,Não,3,0.85
+XPPTX,Gramatical,Gramatical,Sim,4,0.94
+VTVSX,Gramatical,Gramatical,Sim,2,1.11
+VVVTX,Não Gramatical,Gramatical,Não,5,0.81
+VPTX,Não Gramatical,Não Gramatical,Sim,4,0.84
+SXX,Não Gramatical,Não Gramatical,Sim,2,0.84
+XTVTX,Gramatical,Não Gramatical,Não,5,1.07
+SSX,Não Gramatical,Não Gramatical,Sim,2,0.83
+VTVTPS,Não Gramatical,Gramatical,Não,3,0.81
+TVSPX,Não Gramatical,Não Gramatical,Sim,5,1.51
+VVTVTX,Não Gramatical,Gramatical,Não,1,0.86

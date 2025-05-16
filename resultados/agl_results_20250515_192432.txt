@@ -1,0 +1,49 @@
+Resultados do Experimento de Aprendizagem de Gramática Artificial
+============================================================
+
+Data: 2025-05-15 19:24:32
+
+Métricas de Desempenho:
+- Acertos (Hits): 1
+- Erros de Omissão (Misses): 9
+- Falsos Alarmes: 0
+- Rejeições Corretas: 10
+- d' (sensibilidade): 0.15
+- Acurácia: 0.55
+- Confiança Média: 4.80
+- Tempo de Reação Médio: 1.19 s
+
+Sequências de Treinamento:
+- VSPTVTVS
+- XTVTVSX
+- XPPPTX
+- XPPTX
+- VSX
+- VSPSPTVT
+- VTX
+- XPTX
+- XPTVTVSP
+- XPPPPTX
+- XTVSPSPT
+
+Sequências de Teste e Respostas:
+- VTVTX | Real: Gramatical | Resposta: Não Gramatical | Confiança: 4
+- XPTVSPTX | Real: Gramatical | Resposta: Gramatical | Confiança: 2
+- VX | Real: Não Gramatical | Resposta: Não Gramatical | Confiança: 5
+- XTVTXVSX | Real: Não Gramatical | Resposta: Não Gramatical | Confiança: 5
+- XTX | Real: Gramatical | Resposta: Não Gramatical | Confiança: 5
+- PSX | Real: Não Gramatical | Resposta: Não Gramatical | Confiança: 5
+- XXPPPPTTX | Real: Não Gramatical | Resposta: Não Gramatical | Confiança: 5
+- XTTXSX | Real: Não Gramatical | Resposta: Não Gramatical | Confiança: 5
+- VSPSX | Real: Gramatical | Resposta: Não Gramatical | Confiança: 5
+- XTVSX | Real: Gramatical | Resposta: Não Gramatical | Confiança: 5
+- XPPPPTVT | Real: Gramatical | Resposta: Não Gramatical | Confiança: 5
+- XPTVSX | Real: Gramatical | Resposta: Não Gramatical | Confiança: 5
+- VXVVTVSX | Real: Não Gramatical | Resposta: Não Gramatical | Confiança: 5
+- XX | Real: Não Gramatical | Resposta: Não Gramatical | Confiança: 5
+- VTVSX | Real: Gramatical | Resposta: Não Gramatical | Confiança: 5
+- VSPTVTVT | Real: Gramatical | Resposta: Não Gramatical | Confiança: 5
+- XPXX | Real: Não Gramatical | Resposta: Não Gramatical | Confiança: 5
+- VSPSPVTVP | Real: Não Gramatical | Resposta: Não Gramatical | Confiança: 5
+- VSPTX | Real: Gramatical | Resposta: Não Gramatical | Confiança: 5
+- VTXV | Real: Não Gramatical | Resposta: Não Gramatical | Confiança: 5

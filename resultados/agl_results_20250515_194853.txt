@@ -1,0 +1,65 @@
+Resultados do Experimento de Aprendizagem de Gramática Artificial
+============================================================
+
+Data: 2025-05-15 19:48:53
+
+Métricas da Teoria da Detecção de Sinais:
+- Taxa de Hits: 0.40
+- Taxa de Falsos Alarmes: 0.50
+- d' (sensibilidade): -5.71
+- C (critério): 0.02
+
+Métricas de Desempenho:
+- Acertos (Hits): 4
+- Erros de Omissão (Misses): 6
+- Falsos Alarmes: 5
+- Rejeições Corretas: 5
+- Acurácia: 0.45
+
+Métricas de Confiança:
+- Confiança Média: 3.35
+- Confiança em Hits: 2.75
+- Confiança em Misses: 4.17
+- Confiança em Falsos Alarmes: 2.80
+- Confiança em Rejeições Corretas: 3.40
+- Acertos com Baixa Confiança: 4
+
+- Tempo de Reação Médio: 0.99 s
+
+Interpretação de Aprendizado Implícito:
+Não foram encontradas evidências robustas de aprendizado implícito.
+
+Sequências de Treinamento:
+- XTX
+- VTVTX
+- XPTVTVSP
+- VSPTVSPS
+- VSX
+- XPPPTX
+- XTVSX
+- XPTX
+- VSPTX
+- VTX
+- VTVSPTX
+
+Sequências de Teste e Respostas:
+- VSPTVSX | Real: Gramatical | Resposta: Não Gramatical | ✗ | Confiança: 4 | TR: 1.08s
+- VTVTVSPT | Real: Gramatical | Resposta: Não Gramatical | ✗ | Confiança: 3 | TR: 0.95s
+- VTTX | Real: Não Gramatical | Resposta: Gramatical | ✗ | Confiança: 2 | TR: 0.92s
+- VSPSX | Real: Gramatical | Resposta: Gramatical | ✓ | Confiança: 2 | TR: 1.10s
+- XPPPPPPT | Real: Gramatical | Resposta: Gramatical | ✓ | Confiança: 3 | TR: 0.87s
+- VVTS | Real: Não Gramatical | Resposta: Não Gramatical | ✓ | Confiança: 4 | TR: 1.25s
+- XPTVSX | Real: Gramatical | Resposta: Não Gramatical | ✗ | Confiança: 5 | TR: 0.89s
+- VTVSPTVS | Real: Gramatical | Resposta: Não Gramatical | ✗ | Confiança: 4 | TR: 0.99s
+- XPTVTX | Real: Gramatical | Resposta: Não Gramatical | ✗ | Confiança: 4 | TR: 1.21s
+- TVSX | Real: Não Gramatical | Resposta: Gramatical | ✗ | Confiança: 3 | TR: 0.85s
+- XPPTX | Real: Gramatical | Resposta: Gramatical | ✓ | Confiança: 4 | TR: 0.94s
+- VTVSX | Real: Gramatical | Resposta: Gramatical | ✓ | Confiança: 2 | TR: 1.11s
+- VVVTX | Real: Não Gramatical | Resposta: Gramatical | ✗ | Confiança: 5 | TR: 0.81s
+- VPTX | Real: Não Gramatical | Resposta: Não Gramatical | ✓ | Confiança: 4 | TR: 0.84s
+- SXX | Real: Não Gramatical | Resposta: Não Gramatical | ✓ | Confiança: 2 | TR: 0.84s
+- XTVTX | Real: Gramatical | Resposta: Não Gramatical | ✗ | Confiança: 5 | TR: 1.07s
+- SSX | Real: Não Gramatical | Resposta: Não Gramatical | ✓ | Confiança: 2 | TR: 0.83s
+- VTVTPS | Real: Não Gramatical | Resposta: Gramatical | ✗ | Confiança: 3 | TR: 0.81s
+- TVSPX | Real: Não Gramatical | Resposta: Não Gramatical | ✓ | Confiança: 5 | TR: 1.51s
+- VVTVTX | Real: Não Gramatical | Resposta: Gramatical | ✗ | Confiança: 1 | TR: 0.86s
